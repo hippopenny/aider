@@ -80,7 +80,7 @@ class GameArchitectCoder(AutoApproveCoder):
         self.move_back_cur_messages("I reviewed those changes to the files.")
         self.total_cost = editor_coder.total_cost
 
-        if "LGTM!" not in editor_coder.partial_response_content:
+        if "NEED WORK" in editor_coder.partial_response_content or "LGTM!" not in editor_coder.partial_response_content:
             self.reflected_message = editor_coder.partial_response_content
             
         return
