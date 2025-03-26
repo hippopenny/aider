@@ -640,9 +640,7 @@ class Coder:
 
     def get_cur_message_text(self):
         text = ""
-        print(f"===> get_cur_message_text {self.cur_messages}")
         for msg in self.cur_messages:
-            print(f"===> get_cur_message_text msg", msg)
             text += msg["content"] + "\n"
         return text
 
@@ -681,13 +679,9 @@ class Coder:
         if not self.repo_map:
             return
 
-        print("===> get_repo_map 1")
         cur_msg_text = self.get_cur_message_text()
-        print("===> get_repo_map 2", cur_msg_text) 
-
         mentioned_fnames = self.get_file_mentions(cur_msg_text)
         mentioned_idents = self.get_ident_mentions(cur_msg_text)
-
         mentioned_fnames.update(self.get_ident_filename_matches(mentioned_idents))
 
         all_abs_files = set(self.get_all_abs_files())
@@ -718,7 +712,6 @@ class Coder:
                 set(),
                 all_abs_files,
             )
-        print("===> get_repo_map 3", repo_content)
         return repo_content
 
     def get_repo_messages(self):
@@ -761,31 +754,23 @@ class Coder:
         return readonly_messages
 
     def get_chat_files_messages(self):
-        print("===> get_chat_files_messages 1")
         chat_files_messages = []
         if self.abs_fnames:
-            print("===> get_chat_files_messages 2")
-
             files_content = self.gpt_prompts.files_content_prefix
             files_content += self.get_files_content()
             files_reply = self.gpt_prompts.files_content_assistant_reply
         elif self.get_repo_map() and self.gpt_prompts.files_no_full_files_with_repo_map:
-            print("===> get_chat_files_messages 3")
             files_content = self.gpt_prompts.files_no_full_files_with_repo_map
             files_reply = self.gpt_prompts.files_no_full_files_with_repo_map_reply
         else:
-            print("===> get_chat_files_messages 4")
             files_content = self.gpt_prompts.files_no_full_files
             files_reply = "Ok."
 
         if files_content:
-            print("===> get_chat_files_messages 5")
             chat_files_messages += [
                 dict(role="user", content=files_content),
                 dict(role="assistant", content=files_reply),
             ]
-
-        print("===> get_chat_files_messages 51", chat_files_messages)
 
         images_message = self.get_images_message(self.abs_fnames)
         if images_message is not None:
@@ -793,7 +778,6 @@ class Coder:
                 images_message,
                 dict(role="assistant", content="Ok."),
             ]
-        print("===> get_chat_files_messages 6", chat_files_messages)
         return chat_files_messages
 
     def get_images_message(self, fnames):
@@ -1181,19 +1165,13 @@ class Coder:
 
         chunks.examples = example_messages
 
-        print(f"===> bc format_chat_chunks before summarize_end")
-
         self.summarize_end()
-        print(f"===> bc format_chat_chunks after summarize_end")
 
         chunks.done = self.done_messages
 
         chunks.repo = self.get_repo_messages()
-        print(f"===> bc format_chat_chunks after get_repo_messages")
         chunks.readonly_files = self.get_readonly_files_messages()
-        print(f"===> bc format_chat_chunks after get_readonly_files_messages")
         chunks.chat_files = self.get_chat_files_messages()
-        print(f"===> bc format_chat_chunks after get_chat_files_messages")
 
         if self.gpt_prompts.system_reminder:
             reminder_message = [
@@ -1204,8 +1182,6 @@ class Coder:
         else:
             reminder_message = []
 
-        print(f"===> bc format_chat_chunks before cur_messages")
-
         chunks.cur = list(self.cur_messages)
         chunks.reminder = []
 
@@ -1213,8 +1189,6 @@ class Coder:
         messages_tokens = self.main_model.token_count(chunks.all_messages())
         reminder_tokens = self.main_model.token_count(reminder_message)
         cur_tokens = self.main_model.token_count(chunks.cur)
-
-        # print(f"===> bc format_chat_chunks cur {chunks.cur}")
 
         if None not in (messages_tokens, reminder_tokens, cur_tokens):
             total_tokens = messages_tokens + reminder_tokens + cur_tokens
@@ -1244,8 +1218,6 @@ class Coder:
                     + self.fmt_system_prompt(self.gpt_prompts.system_reminder)
                 )
                 chunks.cur[-1] = dict(role=final["role"], content=new_content)
-
-        # print(f"===> bc format_chat_chunks end chunks {chunks}")
 
         return chunks
 
@@ -1350,13 +1322,8 @@ class Coder:
                 dict(role="tool", content=inp, tool_call_id=tool_call_id),
             ]
 
-
-        print(f" cur_messages: {self.cur_messages}")
-
         chunks = self.format_messages()
-        print(f" ====> chunks before all messages: {chunks}")
         messages = chunks.all_messages()
-        print(f" ====> chunks after all messages: {messages}")
         if not self.check_tokens(messages):
             return
         self.warm_cache(chunks)
@@ -1387,10 +1354,6 @@ class Coder:
                     ex_info = litellm_ex.get_ex_info(err)
                     err_msg = str(err)
 
-                    print(f"===> bc send_message exception: {err}")
-                    print(f"===> bc send_message exception info: {ex_info}, name {ex_info.name}")
-
-
                     if ex_info.name == "ContextWindowExceededError":
                         exhausted = True
                         break
@@ -1408,22 +1371,12 @@ class Coder:
                         if ex_info.name == "BadRequestError":
                             # delete the last msg with tool_call_id
                             msg = self.cur_messages.pop()
-                            print(f"===> bc send_message removing tool_call_id message: {msg}")
                             self.io.tool_output("BadRequestError, removing last bad message")
                             if "tool_call_id" in err_msg:
                                 msg = self.cur_messages.pop()
                                 self.io.tool_output("BadRequestError, removing tool call message with particular tool_call_id")
-                                print(f"===> bc send_message removing tool_call_id message 2: {msg}")
-
-                            # no tools
-                            # self.functions = None
                             
-                            self.format_messages()
-                            
-                            # self.io.tool_output("Retrying without tools")
-                            # continue
-                            
-                            
+                            self.format_messages()    
                         break
                     
                     if ex_info.description:
@@ -1453,7 +1406,6 @@ class Coder:
                             dict(role="assistant", content=self.multi_response_content, prefix=True)
                         )
                 except Exception as err:
-                    print(f"===> bc send_message exception 2: {err}")
                     self.mdstream = None
                     lines = traceback.format_exception(type(err), err, err.__traceback__)
                     self.io.tool_warning("".join(lines))

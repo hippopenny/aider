@@ -771,11 +771,9 @@ class Model(ModelSettings):
             num_ctx = int(self.token_count(messages) * 1.25) + 8192
             kwargs["num_ctx"] = num_ctx
 
-        print('=====> kwargs:', kwargs)
         key = json.dumps(kwargs, sort_keys=True).encode()
 
         # dump(kwargs)
-        print('=====> kwargs:', kwargs)
 
         hash_object = hashlib.sha1(key)
         if "timeout" not in kwargs:
@@ -812,7 +810,6 @@ class Model(ModelSettings):
 
             except litellm_ex.exceptions_tuple() as err:
                 ex_info = litellm_ex.get_ex_info(err)
-                print(str(err))
                 if ex_info.description:
                     print(ex_info.description)
                 should_retry = ex_info.retry
