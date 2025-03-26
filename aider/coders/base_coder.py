@@ -682,7 +682,6 @@ class Coder:
         cur_msg_text = self.get_cur_message_text()
         mentioned_fnames = self.get_file_mentions(cur_msg_text)
         mentioned_idents = self.get_ident_mentions(cur_msg_text)
-
         mentioned_fnames.update(self.get_ident_filename_matches(mentioned_idents))
 
         all_abs_files = set(self.get_all_abs_files())
@@ -713,7 +712,6 @@ class Coder:
                 set(),
                 all_abs_files,
             )
-
         return repo_content
 
     def get_repo_messages(self):
@@ -780,7 +778,6 @@ class Coder:
                 images_message,
                 dict(role="assistant", content="Ok."),
             ]
-
         return chat_files_messages
 
     def get_images_message(self, fnames):
@@ -1331,7 +1328,6 @@ class Coder:
                 dict(role="tool", content=inp, tool_call_id=tool_call_id),
             ]
 
-
         chunks = self.format_messages()
         messages = chunks.all_messages()
         if not self.check_tokens(messages):
@@ -1386,7 +1382,7 @@ class Coder:
                                 msg = self.cur_messages.pop()
                                 self.io.tool_output("BadRequestError, removing tool call message with particular tool_call_id")
                             
-                            self.format_messages()                            
+                            self.format_messages()    
                         break
                     
                     if ex_info.description:
@@ -1616,7 +1612,7 @@ class Coder:
             self.cur_messages += [
                 dict(
                     role="assistant",
-                    content=None,
+                    content="",
                     tool_calls=self.partial_response_function_call,
                 )
             ]

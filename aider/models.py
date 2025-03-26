@@ -761,6 +761,7 @@ class Model(ModelSettings):
 
             kwargs["temperature"] = temperature
 
+
             if functions is not None and len(functions) > 0:  # Only add tools if we have valid ones
                 kwargs["tools"] = functions # don't assign empty array tools as that will result in weird responses
 
@@ -812,7 +813,6 @@ class Model(ModelSettings):
 
             except litellm_ex.exceptions_tuple() as err:
                 ex_info = litellm_ex.get_ex_info(err)
-                print(str(err))
                 if ex_info.description:
                     print(ex_info.description)
                 should_retry = ex_info.retry
