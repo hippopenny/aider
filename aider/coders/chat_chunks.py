@@ -14,6 +14,7 @@ class ChatChunks:
     reminder: List = field(default_factory=list)
 
     def all_messages(self):
+        print("===> all_messages", self.repo, self.chat_files)
         return (
             self.system
             + self.examples

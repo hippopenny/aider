@@ -760,6 +760,7 @@ class Model(ModelSettings):
 
             kwargs["temperature"] = temperature
 
+
             if functions is not None and len(functions) > 0:  # Only add tools if we have valid ones
                 kwargs["tools"] = functions # don't assign empty array tools as that will result in weird responses
 
@@ -770,9 +771,11 @@ class Model(ModelSettings):
             num_ctx = int(self.token_count(messages) * 1.25) + 8192
             kwargs["num_ctx"] = num_ctx
 
+        print('=====> kwargs:', kwargs)
         key = json.dumps(kwargs, sort_keys=True).encode()
 
         # dump(kwargs)
+        print('=====> kwargs:', kwargs)
 
         hash_object = hashlib.sha1(key)
         if "timeout" not in kwargs:
