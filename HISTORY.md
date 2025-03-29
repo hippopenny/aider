@@ -1,5 +1,18 @@
 # Release history
 
+### Aider v0.79.2
+
+- Added 'gemini' alias for gemini-2.5-pro model.
+- Updated Gemini 2.5 Pro max output tokens to 64k.
+- Added support for Lisp-style semicolon comments in file watcher, by Matteo Landi.
+- Added OpenRouter API error detection and retries.
+- Added openrouter/deepseek-chat-v3-0324 model.
+- Aider wrote 93% of the code in this release.
+
+### Aider v0.79.1
+
+- Improved model listing to include all models in fuzzy matching, including those provided by aider (not litellm).
+
 ### Aider v0.79.0
 
 - Added support for Gemini 2.5 Pro models.
